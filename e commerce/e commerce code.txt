@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bangalore Delicious</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fffdf5;
+    }
+
+    header, footer {
+      background: #f8b500;
+      padding: 15px;
+      text-align: center;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 0;
+      margin: 0;
+    }
+
+    nav ul li {
+      margin: 10px 15px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .section, .item-card {
+      padding: 15px;
+      margin: 10px;
+      text-align: center;
+    }
+
+    .item-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 10px;
+    }
+
+    .item-card img,
+    #home-info img {
+      width: 200px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      max-width: 400px;
+      width: 90%;
+      border-radius: 5px;
+    }
+
+    .close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    #main-content {
+      display: none;
+    }
+
+    .cart {
+      padding: 20px;
+      background: #fff0c4;
+      margin: 20px;
+      border-radius: 10px;
+    }
+
+    #categories {
+      text-align: center;
+    }
+
+    #home-info {
+      text-align: center;
+      padding: 20px;
+    }
+
+    #contact {
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Bangalore Delicious</h1>
+  <nav>
+    <ul id="nav-menu">
+      <li><a href="#" onclick="showLogin()">Login</a></li>
+      <li><a href="#" onclick="showRegister()">Register</a></li>
+    </ul>
+  </nav>
+</header>
+
+<nav style="display:none" id="category-nav">
+  <ul>
+    <li><a href="#" onclick="showHome()">Home</a></li>
+    <li><a href="#" onclick="showCategory('fastfood')">Fast Food</a></li>
+    <li><a href="#" onclick="showCategory('fruits')">Fruits</a></li>
+    <li><a href="#" onclick="showCategory('vegetables')">Vegetables</a></li>
+    <li><a href="#" onclick="showCategory('dairy')">Dairy Products</a></li>
+    <li><a href="#" onclick="showCart()">Your Cart</a></li>
+    <li><a href="#" onclick="signOut()">Sign Out</a></li>
+  </ul>
+</nav>
+
+<div id="main-content">
+  <div id="home-info">
+    <h2>Welcome to Bangalore Delicious</h2>
+    <p>
+      Discover a taste of Bangalore like never before! <br><br>
+      <strong>Bangalore Delicious</strong> brings you a fusion of tradition and modern cuisine. Whether you’re shopping for tangy street-side fast food, farm-fresh fruits and vegetables, or daily dairy delights – we have everything under one roof to satisfy your cravings. <br><br>
+      Explore our delicious range and order with ease!
+    </p>
+    <img src="mix.jpg" alt="Mixed Items">
+    <img src="fastfood.jpg" alt="Fast Food">
+    <img src="dairy.jpg" alt="Dairy Products">
+  </div>
+
+  <div id="categories"></div>
+
+  <div id="cart-section" class="cart" style="display:none;">
+    <h2>Your Cart</h2>
+    <ul id="cart-items"></ul>
+    <p>Total: ₹<span id="cart-total">0.00</span></p>
+    <button onclick="checkout()">Checkout</button>
+  </div>
+
+  <div id="contact" class="contact" style="text-align:center;">
+    <h2>Contact Us</h2>
+    <p>Address: 123 Food Street, Kolhapur City, India</p>
+    <p>Phone: +91 123 456 7890</p>
+    <p>Email: contact@kolhapurdelicious.in</p>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Login</h2>
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="Email" required><br><br>
+      <input type="password" id="login-password" placeholder="Password" required><br><br>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div id="register-modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Register</h2>
+    <form id="register-form">
+      <input type="text" id="register-name" placeholder="Name" required><br><br>
+      <input type="email" id="register-email" placeholder="Email" required><br><br>
+      <input type="password" id="register-password" placeholder="Password" required><br><br>
+      <button type="submit">Register</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  let cart = [];
+
+  const items = {
+    fastfood: [
+      { name: 'NOODLES', price: 300, img: 'noodles.jpg' },
+      { name: 'BURGER', price: 150, img: 'burger.jpg' },
+      { name: 'DONUTS', price: 250, img: 'donuts_23-2147783596.jpg' }
+    ],
+    fruits: [
+      { name: 'APPLE', price: 100, img: 'apple.jpg' },
+      { name: 'GRAPES', price: 80, img: 'grapes.jpg' },
+      { name: 'STRAWBERRY', price: 120, img: 'strawberry.jpg' },
+      { name: 'BANANA', price: 60, img: 'banana.jpg' },
+      { name: 'ORANGE', price: 90, img: 'orange.jpg' },
+      { name: 'POMEGRANATES', price: 110, img: 'pomegranates.jpg' }
+    ],
+    vegetables: [
+      { name: 'BRINJAL', price: 40, img: 'brinjial.jpg' },
+      { name: 'CARROT', price: 60, img: 'carrot.jpg' },
+      { name: 'POTATO', price: 30, img: 'potato.jpg' },
+      { name: 'TOMATO', price: 35, img: 'tomato.jpg' }
+    ],
+    dairy: [
+      { name: 'MILK', price: 50, img: 'milk.jpg' },
+      { name: 'ICE CREAM', price: 120, img: 'icecream.jpg' },
+      { name: 'CHEESE', price: 90, img: 'cheese.jpg' },
+      { name: 'BUTTER', price: 70, img: 'butter.jpg' }
+    ]
+  };
+
+  function showHome() {
+    document.getElementById("home-info").style.display = "block";
+    document.getElementById("categories").innerHTML = "";
+    document.getElementById("cart-section").style.display = "none";
+  }
+
+  function showLogin() {
+    document.getElementById("login-modal").style.display = "flex";
+  }
+
+  function showRegister() {
+    document.getElementById("register-modal").style.display = "flex";
+  }
+
+  function closeModal() {
+    document.querySelectorAll(".modal").forEach(m => m.style.display = "none");
+  }
+
+  document.getElementById("register-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const user = {
+      name: document.getElementById("register-name").value,
+      email: document.getElementById("register-email").value,
+      password: document.getElementById("register-password").value
+    };
+    localStorage.setItem("user", JSON.stringify(user));
+    alert("Registered! Please login.");
+    closeModal();
+  });
+
+  document.getElementById("login-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.email === email && user.password === password) {
+      document.getElementById("main-content").style.display = "block";
+      document.getElementById("category-nav").style.display = "block";
+      document.getElementById("nav-menu").style.display = "none";
+      document.getElementById("home-info").style.display = "block";
+      closeModal();
+    } else {
+      alert("Invalid credentials");
+    }
+  });
+
+  function signOut() {
+    document.getElementById("main-content").style.display = "none";
+    document.getElementById("nav-menu").style.display = "flex";
+    document.getElementById("category-nav").style.display = "none";
+    alert("Signed out.");
+  }
+
+  function showCategory(category) {
+    const area = document.getElementById("categories");
+    area.innerHTML = "";
+    document.getElementById("home-info").style.display = "none";
+    document.getElementById("cart-section").style.display = "none";
+    items[category].forEach(item => {
+      area.innerHTML += `
+        <div class="item-card">
+          <img src="${item.img}" alt="${item.name}">
+          <h3>${item.name}</h3>
+          <p>₹${item.price}</p>
+          <button onclick="addToCart('${item.name}', ${item.price})">Add to Cart</button>
+        </div>`;
+    });
+  }
+
+  function showCart() {
+    document.getElementById("categories").innerHTML = "";
+    document.getElementById("home-info").style.display = "none";
+    document.getElementById("cart-section").style.display = "block";
+    renderCart();
+  }
+
+  function addToCart(name, price) {
+    cart.push({ name, price });
+    renderCart();
+  }
+
+  function renderCart() {
+    const list = document.getElementById("cart-items");
+    list.innerHTML = "";
+    let total = 0;
+    cart.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} - ₹${item.price}`;
+      list.appendChild(li);
+      total += item.price;
+    });
+    document.getElementById("cart-total").textContent = total.toFixed(2);
+  }
+
+  function checkout() {
+    if (cart.length === 0) alert("Your cart is empty.");
+    else {
+      alert("Order placed successfully!");
+      cart = [];
+      renderCart();
+    }
+  }
+</script>
+
+</body>
+</html>
